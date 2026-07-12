@@ -1,0 +1,27 @@
+# CI de tests — Packagist se synchronise tout seul sur les tags (hook GitHub),
+# ce workflow garantit qu'aucun tag rouge ne part chez les clients Composer.
+name: Tests
+
+on:
+  push:
+    branches: [main]
+    tags: ["v*"]
+  pull_request:
+
+jobs:
+  phpunit:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        php: ["8.1", "8.2", "8.3"]
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          extensions: curl, json
+
+      - run: composer install --no-progress --prefer-dist
+
+      - run: vendor/bin/phpunit
