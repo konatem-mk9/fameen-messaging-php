@@ -1,7 +1,6 @@
 {
     "name": "fameen/messaging",
     "description": "SDK PHP officiel de l'API Fameen Messaging (SMS, WhatsApp, Email) — zéro dépendance, avec pont Laravel intégré.",
-    "version": "0.1.0",
     "type": "library",
     "license": "MIT",
     "keywords": [
@@ -14,6 +13,10 @@
         "laravel"
     ],
     "homepage": "https://business.fameengroupe.com",
+    "support": {
+        "source": "https://github.com/konatem-mk9/fameen-messaging-php",
+        "issues": "https://github.com/konatem-mk9/fameen-messaging-php/issues"
+    },
     "authors": [
         {
             "name": "Fameen Groupe",
