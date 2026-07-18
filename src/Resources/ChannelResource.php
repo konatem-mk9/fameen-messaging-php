@@ -6,6 +6,7 @@ namespace Fameen\Messaging\Resources;
 
 use Fameen\Messaging\Dto\MessageResource;
 use Fameen\Messaging\FameenMessaging;
+use Fameen\Messaging\Media;
 
 /**
  * Socle commun des ressources par canal (`sms`, `whatsapp`, `email`).
@@ -27,8 +28,10 @@ abstract class ChannelResource
     /**
      * Envoie un message sur ce canal (nécessite le scope correspondant de la clé API).
      *
-     * @param array<string, mixed> $params  `['to' => …, 'message' => …, 'subject' => ?, 'statusCallback' => ?]`
-     *                                      (`subject` : canal email uniquement, ≤255 caractères).
+     * @param array<string, mixed> $params  `['to' => …, 'message' => …, 'subject' => ?, 'statusCallback' => ?,
+     *                                      'attachments' => ?, 'media' => ?, 'fileName' => ?]`
+     *                                      (`subject` : canal email uniquement, ≤255 caractères ;
+     *                                      médias : `content`/`media` = octets bruts, encodés par le SDK).
      * @param array<string, mixed> $options `['idempotencyKey' => string]` — rend les réessais sûrs (fenêtre 24 h).
      *
      * @throws \InvalidArgumentException Paramètres invalides (aucun appel réseau effectué).
@@ -39,7 +42,8 @@ abstract class ChannelResource
     {
         $this->assertSendable($params, $this->channel());
 
-        $data = $this->client->request('POST', $this->path(), body: $params, idempotencyKey: $this->idempotencyKeyFrom($options));
+        $body = Media::normalizeParams($params);
+        $data = $this->client->request('POST', $this->path(), body: $body, idempotencyKey: $this->idempotencyKeyFrom($options));
 
         return MessageResource::fromArray(is_array($data) ? $data : []);
     }

@@ -33,7 +33,7 @@ use Fameen\Messaging\Transport\TransportResponse;
  */
 class FameenMessaging
 {
-    public const VERSION = '0.1.0';
+    public const VERSION = '0.2.0';
     public const DEFAULT_BASE_URL = 'https://business.fameengroupe.com/api/v1';
 
     private readonly string $apiKey;
@@ -128,6 +128,23 @@ class FameenMessaging
     public function wallet(): WalletResource
     {
         return $this->wallet;
+    }
+
+    /**
+     * Construit une pièce jointe depuis un fichier local (raccourci vers {@see Media::fromFile()}).
+     *
+     * ```php
+     * $att = FameenMessaging::fileAttachment('facture.pdf');
+     * $fameen->email()->send(['to' => 'a@b.com', 'subject' => 'Facture', 'message' => '...', 'attachments' => [$att]]);
+     * ```
+     *
+     * @param array{filename?: string, contentType?: string, type?: string} $opts
+     *
+     * @return array<string, mixed>
+     */
+    public static function fileAttachment(string $path, array $opts = []): array
+    {
+        return Media::fromFile($path, $opts);
     }
 
     /** Compteurs `X-RateLimit-*` de la dernière réponse qui les fournissait, sinon null. */

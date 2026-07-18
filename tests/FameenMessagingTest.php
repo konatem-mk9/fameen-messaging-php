@@ -73,6 +73,17 @@ final class FameenMessagingTest extends TestCase
         return ['success' => true, 'data' => $data, 'message' => 'OK'];
     }
 
+    /** Écrit un fichier temporaire portant le nom voulu et renvoie son chemin. */
+    private static function tempFile(string $content, string $name): string
+    {
+        $dir = sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'fameen-' . uniqid('', true);
+        mkdir($dir);
+        $path = $dir . DIRECTORY_SEPARATOR . $name;
+        file_put_contents($path, $content);
+
+        return $path;
+    }
+
     public function testApiKeyIsRequired(): void
     {
         $this->expectException(\InvalidArgumentException::class);
@@ -130,6 +141,76 @@ final class FameenMessagingTest extends TestCase
 
         $body = json_decode((string) $request['body'], true);
         $this->assertSame(['to' => '+224620000000', 'message' => 'Commande prête.'], $body);
+    }
+
+    public function testWhatsappMediaShortcutIsBase64Encoded(): void
+    {
+        $transport = new MockTransport();
+        $transport->queueJson(200, self::envelope(self::messagePayload(['channel' => 'whatsapp'])));
+        $client = $this->makeClient($transport);
+
+        $client->whatsapp()->send([
+            'to' => '+224620000000',
+            'message' => 'Votre facture',
+            'media' => '%PDF-1.4 hello',
+            'fileName' => 'facture.pdf',
+        ]);
+
+        $body = json_decode((string) $transport->lastRequest()['body'], true);
+        $this->assertSame(base64_encode('%PDF-1.4 hello'), $body['media']);
+        $this->assertSame('facture.pdf', $body['fileName']);
+    }
+
+    public function testEmailAttachmentsAreEncodedAndPreserveMetadata(): void
+    {
+        $transport = new MockTransport();
+        $transport->queueJson(200, self::envelope(self::messagePayload(['channel' => 'email'])));
+        $client = $this->makeClient($transport);
+
+        $client->email()->send([
+            'to' => 'a@b.com',
+            'subject' => 'Docs',
+            'message' => 'Voir pièces jointes',
+            'attachments' => [
+                ['content' => 'un', 'filename' => 'a.pdf', 'contentType' => 'application/pdf'],
+                FameenMessaging::fileAttachment(self::tempFile('deux', 'b.txt')),
+            ],
+        ]);
+
+        $body = json_decode((string) $transport->lastRequest()['body'], true);
+        $this->assertSame(base64_encode('un'), $body['attachments'][0]['content']);
+        $this->assertSame('application/pdf', $body['attachments'][0]['contentType']);
+        $this->assertSame(base64_encode('deux'), $body['attachments'][1]['content']);
+        $this->assertSame('b.txt', $body['attachments'][1]['filename']);
+    }
+
+    public function testEmptyMessageAllowedWithMedia(): void
+    {
+        $transport = new MockTransport();
+        $transport->queueJson(200, self::envelope(self::messagePayload(['channel' => 'whatsapp'])));
+        $client = $this->makeClient($transport);
+
+        $msg = $client->whatsapp()->send([
+            'to' => '+224620000000',
+            'media' => 'octets-image',
+            'mediaType' => 'image',
+        ]);
+
+        $this->assertSame('MSGa1b2c3', $msg->sid);
+    }
+
+    public function testMediaRejectedOnSmsChannel(): void
+    {
+        $transport = new MockTransport();
+        $client = $this->makeClient($transport);
+
+        try {
+            $client->sms()->send(['to' => '+224620000000', 'message' => 'x', 'media' => 'octets']);
+            $this->fail('Une InvalidArgumentException était attendue.');
+        } catch (\InvalidArgumentException $e) {
+            $this->assertStringContainsString('SMS', $e->getMessage());
+        }
+        $this->assertSame(0, $transport->requestCount());
     }
 
     public function testListBuildsQueryStringAndParsesPage(): void

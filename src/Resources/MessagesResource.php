@@ -7,6 +7,7 @@ namespace Fameen\Messaging\Resources;
 use Fameen\Messaging\Dto\MessageList;
 use Fameen\Messaging\Dto\MessageResource;
 use Fameen\Messaging\FameenMessaging;
+use Fameen\Messaging\Media;
 
 /**
  * Ressource « Messages » unifiée (façon Twilio) : envoi tous canaux,
@@ -35,7 +36,8 @@ final class MessagesResource
         $channel = $params['channel'] ?? null;
         $this->assertSendable($params, is_string($channel) ? $channel : null);
 
-        $data = $this->client->request('POST', '/messages', body: $params, idempotencyKey: $this->idempotencyKeyFrom($options));
+        $body = Media::normalizeParams($params);
+        $data = $this->client->request('POST', '/messages', body: $body, idempotencyKey: $this->idempotencyKeyFrom($options));
 
         return MessageResource::fromArray(is_array($data) ? $data : []);
     }

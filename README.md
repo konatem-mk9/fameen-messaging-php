@@ -95,6 +95,35 @@ $fameen->sms()->send(
 );
 ```
 
+## Médias (pièces jointes)
+
+WhatsApp et email acceptent des pièces jointes (PDF, images, vidéo, audio). Passez les **octets bruts** du fichier dans `media`/`content` (ex. `file_get_contents(...)`) — le SDK les encode en base64 ; l'API héberge le fichier et le distribue. **SMS non supporté.** Quand un média est fourni, `message` peut être vide.
+
+```php
+use Fameen\Messaging\FameenMessaging;
+
+// WhatsApp : un seul média par message, message = légende (facultative)
+$fameen->whatsapp()->send([
+    'to' => '+224620000000',
+    'message' => 'Votre facture',
+    'media' => file_get_contents('facture.pdf'),
+    'fileName' => 'facture.pdf',
+]);
+
+// Email : plusieurs pièces jointes (fileAttachment lit le fichier et devine le type MIME)
+$fameen->email()->send([
+    'to' => 'client@exemple.com',
+    'subject' => 'Vos documents',
+    'message' => 'Bonjour, voir en pièces jointes.',
+    'attachments' => [
+        FameenMessaging::fileAttachment('facture.pdf'),
+        FameenMessaging::fileAttachment('cgv.pdf'),
+    ],
+]);
+```
+
+Chaque pièce jointe : `['content' => <octets>, 'filename' => ..., 'contentType' => ..., 'type' => ...]` où `type` vaut `image | video | audio | document` (déduit du type MIME si absent). Max 16 Mo par fichier.
+
 ## Gestion des erreurs
 
 Toutes les exceptions du SDK héritent de `Fameen\Messaging\Exceptions\FameenException`.

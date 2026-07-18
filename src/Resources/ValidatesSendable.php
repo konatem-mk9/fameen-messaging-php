@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Fameen\Messaging\Resources;
 
+use Fameen\Messaging\Media;
+
 /**
  * Validation locale des paramètres d'envoi, AVANT tout appel réseau
  * (meilleure DX : une erreur native immédiate plutôt qu'un aller-retour API).
@@ -25,9 +27,16 @@ trait ValidatesSendable
             throw new \InvalidArgumentException('`to` est requis (numéro E.164 ou adresse email).');
         }
 
+        $hasMedia = Media::hasMedia($params);
+
+        // Un message peut n'être qu'un média (légende facultative).
         $message = $params['message'] ?? null;
-        if (!is_string($message) || trim($message) === '') {
-            throw new \InvalidArgumentException('`message` est requis et ne peut pas être vide.');
+        if (!$hasMedia && (!is_string($message) || trim($message) === '')) {
+            throw new \InvalidArgumentException('`message` est requis (ou fournissez un média).');
+        }
+
+        if ($hasMedia && $channel === 'sms') {
+            throw new \InvalidArgumentException('Le canal SMS ne supporte pas les pièces jointes.');
         }
 
         if ($channel !== null && $channel !== 'email' && str_contains($to, '@')) {
