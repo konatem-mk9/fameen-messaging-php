@@ -1,6 +1,6 @@
 # Fameen Messaging — SDK PHP officiel
 
-SDK PHP de l'API **Fameen Messaging** : envoi de **SMS**, **WhatsApp** et **Email** depuis votre application PHP ou Laravel.
+SDK PHP de l'API **Fameen Messaging** : envoi de **SMS**, **WhatsApp** et **Email** depuis votre application PHP ou Laravel, et **codes de vérification (OTP)**.
 
 - PHP ≥ 8.1, extensions `curl` et `json` — **zéro dépendance Composer** au runtime.
 - Réessais automatiques sûrs (backoff exponentiel, `Retry-After` respecté, idempotence).
