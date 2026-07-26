@@ -12,7 +12,7 @@
         "notifications",
         "laravel"
     ],
-    "homepage": "https://business.fameengroupe.com",
+    "homepage": "https://fameenbusiness.com",
     "support": {
         "source": "https://github.com/konatem-mk9/fameen-messaging-php",
         "issues": "https://github.com/konatem-mk9/fameen-messaging-php/issues"
@@ -20,7 +20,7 @@
     "authors": [
         {
             "name": "Fameen Groupe",
-            "homepage": "https://business.fameengroupe.com"
+            "homepage": "https://fameenbusiness.com"
         }
     ],
     "require": {

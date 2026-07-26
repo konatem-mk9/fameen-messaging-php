@@ -33,7 +33,7 @@ return [
     | URL de base de l'API
     |--------------------------------------------------------------------------
     */
-    'base_url' => env('FAMEEN_BASE_URL', 'https://business.fameengroupe.com/api/v1'),
+    'base_url' => env('FAMEEN_BASE_URL', 'https://fameenbusiness.com/api/v1'),
 
     /*
     |--------------------------------------------------------------------------

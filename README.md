@@ -82,6 +82,52 @@ echo $solde->billing->sendingBlocked // true = compte bloqué
     ? 'Envois bloqués' : 'OK';
 ```
 
+### Codes de vérification (OTP)
+
+Authentifiez un utilisateur par code à usage unique sur **SMS, WhatsApp ou email**.
+Le code est généré, stocké haché et vérifié **côté serveur** : il ne transite jamais
+par votre application et n'apparaît dans aucune réponse. Ni génération, ni stockage,
+ni expiration à gérer.
+
+```php
+// 1. Envoyer le code (canal déduit du destinataire si absent)
+$v = $fameen->otp()->send('+224620000000', channel: 'sms');
+// $v->verificationId, $v->status === 'pending', $v->expiresAt, $v->attemptsRemaining
+
+// 2. Contrôler le code saisi par l'utilisateur
+$r = $fameen->otp()->verify('483920', verificationId: $v->verificationId);
+
+if ($r->isApproved()) {
+    // utilisateur authentifié
+} else {
+    // $r->reason : 'invalid_code' | 'expired' | 'max_attempts'
+    printf('Échec (%s), %d tentative(s) restante(s)', $r->reason, $r->attemptsRemaining);
+}
+```
+
+Un code erroné **ne lève pas d'exception** : la réponse porte `status = 'rejected'`
+et `reason`. Seules les erreurs de transport ou d'authentification lèvent.
+
+Si vous ne conservez pas l'identifiant, vérifiez par destinataire — la vérification
+en cours la plus récente est utilisée :
+
+```php
+$fameen->otp()->verify('483920', to: '+224620000000');
+```
+
+Options d'envoi : `codeLength` (4–8), `ttlSeconds` (60–3600), `maxAttempts` (1–10),
+`template` (doit contenir `{{code}}` ; marqueurs `{{code}}`, `{{minutes}}`,
+`{{seconds}}`, `{{company}}`), `subject` (email), `statusCallback` et
+`idempotencyKey`. Sans ces paramètres, les réglages du compte s'appliquent.
+
+À savoir :
+
+- L'envoi exige **le scope du canal** utilisé et consomme un crédit de ce canal.
+- Un code validé est **à usage unique** ; le revérifier renvoie `rejected`.
+- Demander un nouveau code pour le même destinataire **annule le précédent**.
+- `$fameen->otp()->get($verificationId)` retourne l'état courant, jamais le code.
+- Sous Laravel : `Fameen::otp()->send(...)`.
+
 ### Idempotence (recommandé pour les envois)
 
 Fournissez une clé d'idempotence : tout réessai dans les 24 h renvoie la
@@ -232,7 +278,7 @@ Puis dans votre `.env` :
 FAMEEN_API_KEY=fam_votre_cle
 FAMEEN_WEBHOOK_SECRET=whsec_votre_secret
 # Optionnel :
-# FAMEEN_BASE_URL=https://business.fameengroupe.com/api/v1
+# FAMEEN_BASE_URL=https://fameenbusiness.com/api/v1
 # FAMEEN_TIMEOUT_MS=30000
 # FAMEEN_MAX_RETRIES=2
 ```
@@ -299,7 +345,7 @@ use Fameen\Messaging\FameenMessaging;
 
 $fameen = new FameenMessaging(
     apiKey: 'fam_…',        // requis
-    baseUrl: 'https://business.fameengroupe.com/api/v1', // défaut
+    baseUrl: 'https://fameenbusiness.com/api/v1', // défaut
     timeoutMs: 30_000,       // timeout par tentative
     maxRetries: 2,           // réessais automatiques
     retryBaseMs: 500,        // base du backoff exponentiel

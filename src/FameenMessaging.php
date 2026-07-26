@@ -9,6 +9,7 @@ use Fameen\Messaging\Exceptions\ApiException;
 use Fameen\Messaging\Exceptions\ConnectionException;
 use Fameen\Messaging\Resources\EmailResource;
 use Fameen\Messaging\Resources\MessagesResource;
+use Fameen\Messaging\Resources\OtpResource;
 use Fameen\Messaging\Resources\SmsResource;
 use Fameen\Messaging\Resources\WalletResource;
 use Fameen\Messaging\Resources\WhatsappResource;
@@ -33,8 +34,8 @@ use Fameen\Messaging\Transport\TransportResponse;
  */
 class FameenMessaging
 {
-    public const VERSION = '0.2.0';
-    public const DEFAULT_BASE_URL = 'https://business.fameengroupe.com/api/v1';
+    public const VERSION = '1.0.0';
+    public const DEFAULT_BASE_URL = 'https://fameenbusiness.com/api/v1';
 
     private readonly string $apiKey;
     private readonly string $baseUrl;
@@ -53,10 +54,11 @@ class FameenMessaging
     private readonly WhatsappResource $whatsapp;
     private readonly EmailResource $email;
     private readonly WalletResource $wallet;
+    private readonly OtpResource $otp;
 
     /**
      * @param string         $apiKey      Clé API du compte (`fam_…`) — jamais côté navigateur. Requis.
-     * @param string|null    $baseUrl     Défaut : `https://business.fameengroupe.com/api/v1` (les `/` finaux sont retirés).
+     * @param string|null    $baseUrl     Défaut : `https://fameenbusiness.com/api/v1` (les `/` finaux sont retirés).
      * @param int            $timeoutMs   Timeout par tentative, en millisecondes (défaut : 30 000).
      * @param int            $maxRetries  Nombre de réessais automatiques (défaut : 2).
      * @param int            $retryBaseMs Base du backoff exponentiel en ms (défaut : 500). Surtout utile en test (mettez 1).
@@ -98,6 +100,7 @@ class FameenMessaging
         $this->whatsapp = new WhatsappResource($this);
         $this->email = new EmailResource($this);
         $this->wallet = new WalletResource($this);
+        $this->otp = new OtpResource($this);
     }
 
     /** Ressource « Messages » unifiée : `create()`, `get()`, `list()`, `history()`. */
@@ -128,6 +131,12 @@ class FameenMessaging
     public function wallet(): WalletResource
     {
         return $this->wallet;
+    }
+
+    /** Codes de verification a usage unique : `$fameen->otp()->send(...)`. */
+    public function otp(): OtpResource
+    {
+        return $this->otp;
     }
 
     /**

@@ -22,6 +22,7 @@ if (class_exists(\Illuminate\Support\Facades\Facade::class)) {
      * @method static \Fameen\Messaging\Resources\EmailResource email()
      * @method static \Fameen\Messaging\Resources\MessagesResource messages()
      * @method static \Fameen\Messaging\Resources\WalletResource wallet()
+     * @method static \Fameen\Messaging\Resources\OtpResource otp()
      * @method static \Fameen\Messaging\Dto\RateLimitInfo|null lastRateLimit()
      *
      * @see FameenMessaging
