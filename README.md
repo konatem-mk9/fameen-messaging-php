@@ -170,6 +170,21 @@ $fameen->email()->send([
 
 Chaque pièce jointe : `['content' => <octets>, 'filename' => ..., 'contentType' => ..., 'type' => ...]` où `type` vaut `image | video | audio | document` (déduit du type MIME si absent). Max 16 Mo par fichier.
 
+## Authenticité du paquet
+
+Composer n'a pas de mécanisme de signature de paquet : Packagist ne fait que
+référencer les **tags git** du dépôt officiel. La source de vérité est donc
+`konatem-mk9/fameen-messaging-php`, et chaque version correspond à un tag `vX.Y.Z`.
+
+Pour contrôler ce que Composer a réellement installé :
+
+```bash
+composer show fameen/messaging          # version + source
+composer audit                          # vulnerabilites connues
+```
+
+Le champ `source.reference` doit correspondre au SHA du tag attendu sur GitHub.
+
 ## Gestion des erreurs
 
 Toutes les exceptions du SDK héritent de `Fameen\Messaging\Exceptions\FameenException`.
