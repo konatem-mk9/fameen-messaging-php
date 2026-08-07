@@ -309,10 +309,13 @@ class FameenMessaging
         ];
     }
 
+    /** Repli quand la réponse ne porte pas de `error.code` exploitable. */
     private function codeFromStatus(int $status): string
     {
         return match (true) {
-            $status === 400 => 'bad_request',
+            // 400 couvre aussi `subscription_expired` ; sans corps lisible on ne
+            // peut pas les distinguer, donc on retient le cas général.
+            $status === 400 => 'invalid_request',
             $status === 401 => 'unauthorized',
             $status === 402 => 'insufficient_credits',
             $status === 403 => 'channel_not_allowed',

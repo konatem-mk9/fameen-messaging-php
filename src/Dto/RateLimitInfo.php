@@ -6,7 +6,8 @@ namespace Fameen\Messaging\Dto;
 
 /**
  * Compteurs de limitation de débit lus sur la dernière réponse
- * (en-têtes `X-RateLimit-*` — 60 requêtes/minute/clé).
+ * (en-têtes `X-RateLimit-*` — 60 requêtes/minute par COMPTE : toutes les clés
+ * d'un même compte partagent ce quota).
  */
 final class RateLimitInfo
 {

@@ -209,13 +209,18 @@ try {
 
 | Statut HTTP | `getErrorCode()` (repli) | Signification |
 |---|---|---|
-| 400 | `bad_request` | Paramètres invalides |
+| 400 | `invalid_request` | Paramètres invalides |
 | 401 | `unauthorized` | Clé API absente/invalide/révoquée |
 | 402 | `insufficient_credits` | Crédits insuffisants |
 | 403 | `channel_not_allowed` | Canal non couvert par les scopes de la clé |
 | 404 | `not_found` | Ressource introuvable |
-| 429 | `rate_limited` | Limite de 60 requêtes/min/clé atteinte |
+| 429 | `rate_limited` | Limite de 60 requêtes/min/compte atteinte |
 | ≥500 | `internal_error` | Erreur serveur |
+
+L'API émet aussi `subscription_expired` (400) — facturation à la consommation
+échue, envoi suspendu jusqu'au renouvellement. Ce code vient du corps de la
+réponse : il n'a pas de repli par statut, un 400 sans corps lisible donnant
+`invalid_request`.
 
 > Le code réel provient de `error.code` du corps de la réponse ; le tableau
 > ci-dessus est le repli utilisé quand le corps est illisible.

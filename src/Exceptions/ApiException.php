@@ -9,13 +9,14 @@ use Fameen\Messaging\Dto\RateLimitInfo;
 /**
  * Erreur renvoyée par l'API (réponse HTTP non-2xx).
  *
- * `getErrorCode()` reprend `error.code` du corps de la réponse
- * (`unauthorized`, `insufficient_credits`, `channel_not_allowed`,
- * `rate_limited`, `not_found`, …). Si le corps est illisible, un code de
- * repli est déduit du statut HTTP :
- * 400→bad_request, 401→unauthorized, 402→insufficient_credits,
+ * `getErrorCode()` reprend `error.code` du corps de la réponse. Codes émis par
+ * l'API : `invalid_request`, `unauthorized`, `insufficient_credits`,
+ * `subscription_expired`, `channel_not_allowed`, `not_found`, `rate_limited`,
+ * `internal_error`. Si le corps est illisible, un code de repli est déduit du
+ * statut HTTP :
+ * 400→invalid_request, 401→unauthorized, 402→insufficient_credits,
  * 403→channel_not_allowed, 404→not_found, 429→rate_limited,
- * ≥500→internal_error, sinon unknown_error.
+ * ≥500→internal_error, sinon unknown_error (jamais émis par l'API).
  */
 final class ApiException extends FameenException
 {
