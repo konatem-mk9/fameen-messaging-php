@@ -34,7 +34,7 @@ use Fameen\Messaging\Transport\TransportResponse;
  */
 class FameenMessaging
 {
-    public const VERSION = '1.0.3';
+    public const VERSION = '1.0.4';
     public const DEFAULT_BASE_URL = 'https://fameenbusiness.com/api/v1';
 
     private readonly string $apiKey;
